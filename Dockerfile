@@ -11,4 +11,6 @@ RUN mkdir -p /var/lib/nfs/rpc_pipefs                                            
 EXPOSE 2049
 
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 CMD ["/usr/local/bin/entrypoint.sh"]
