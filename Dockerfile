@@ -1,4 +1,4 @@
-FROM alpine:3.18.3
+FROM alpine:3.19.0
 LABEL org.opencontainers.image.source https://github.com/trexx/docker-nfs-server
 
 RUN apk --update --no-cache add nfs-utils
