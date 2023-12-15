@@ -1,6 +1,9 @@
 name: trivy
 
 on:
+  push: 
+    branches:
+      - main
   schedule:
     - cron: '37 12 * * 0'
 
