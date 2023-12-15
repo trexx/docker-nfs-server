@@ -1,2 +1,0 @@
-DOCKER_REPO="ghcr.io/trexx/docker-nfs-server"
-TAG="3.18"
