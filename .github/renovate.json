@@ -1,5 +1,4 @@
 {
-  "enabledManagers": ["dockerfile", "custom.regex"],
   "packageRules": [
     {
       "matchDatasources": [
@@ -17,5 +16,6 @@
       ],
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     }
-  ]
+  ],
+  "enabledManagers": ["dockerfile", "custom.regex"]
 }
