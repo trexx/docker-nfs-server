@@ -17,5 +17,5 @@
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     }
   ],
-  "enabledManagers": ["dockerfile", "custom.regex"]
+  "enabledManagers": ["dockerfile", "regex"]
 }
