@@ -1,5 +1,5 @@
 {
-  "enabledManagers": ["dockerfile", "regex"],
+  "enabledManagers": ["dockerfile", "custom.regex"],
   "packageRules": [
     {
       "matchDatasources": [
