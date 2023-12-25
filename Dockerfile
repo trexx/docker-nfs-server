@@ -2,7 +2,7 @@ FROM alpine:3.19.0
 LABEL org.opencontainers.image.source https://github.com/trexx/docker-nfs-server
 
 # renovate: datasource=repology depName=alpine_3_19/nfs-utils versioning=loose
-ENV NFS_UTILS_VERSION "2.6.4-r0"
+ENV NFS_UTILS_VERSION="2.6.4-r0"
 
 RUN apk --update --no-cache add nfs-utils="${NFS_UTILS_VERSION}"
 

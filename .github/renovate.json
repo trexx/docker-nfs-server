@@ -1,11 +1,11 @@
 {
-  "packageRules": [
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "pinDigests": true
-    }
+  "extends": [
+    "docker:enableMajor",
+    "docker:pinDigests"
+  ],
+  "enabledManagers": [
+    "dockerfile",
+    "custom.regex"
   ],
   "customManagers": [
     {
@@ -16,6 +16,5 @@
       ],
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     }
-  ],
-  "enabledManagers": ["dockerfile", "regex"]
+  ]
 }
