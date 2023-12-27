@@ -38,6 +38,6 @@ jobs:
           scanners: 'vuln'
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@1500a131381b66de0c52ac28abb13cd79f4b7ecc # v2
         with:
           sarif_file: 'trivy-results.sarif'
