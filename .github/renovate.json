@@ -2,11 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "docker:enableMajor",
-    "docker:pinDigests"
+    "docker:pinDigests",
+    "helpers:pinGitHubActionDigests"
   ],
   "enabledManagers": [
     "dockerfile",
-    "custom.regex"
+    "custom.regex",
+    "github-actions"
   ],
   "customManagers": [
     {
