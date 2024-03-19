@@ -47,7 +47,6 @@ template:
             hostPort: 2049
             protocol: TCP
         securityContext:
-          privileged: true
           capabilities:
             add:
               - "SYS_ADMIN"
