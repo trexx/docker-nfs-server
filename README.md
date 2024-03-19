@@ -3,9 +3,15 @@
 A simple nfs-server Docker image based on Alpine.
 NFS 4.2 enabled. NFS v2 & v3 disabled.
 
+I don't need a 1k line bash script to automate NFS for my needs. I use this myself to simply share a directory with Kodi.  
+Regular Trivy security scans as part of Actions ensure I try to stay on top of Security Alerts in the base Alpine image.
+
+I hope to work on getting automated builds going soon.
+
+
 ## Usage
 
-Here I skip using `/etc/exports` and write an etab file to `/var/lib/nfs/etab`
+Here I skip using `/etc/exports` and write an etab file to `/var/lib/nfs/etab` this can be via a docker / podman volume or configmap.
 
 
 ```
