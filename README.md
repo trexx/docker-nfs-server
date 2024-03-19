@@ -1,6 +1,6 @@
 # docker-nfs-server
 
-A simple nfs-server Docker image based on Alpine.
+A simple nfs-server Docker image based on Alpine.  
 NFS 4.2 enabled. NFS v2 & v3 disabled.
 
 I don't need a 1k line bash script to automate NFS for my needs. I use this myself to simply share a directory with Kodi.  
