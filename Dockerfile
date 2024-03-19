@@ -5,11 +5,7 @@ LABEL org.opencontainers.image.source https://github.com/trexx/docker-nfs-server
 ENV NFS_UTILS_VERSION "2.6.4-r0"
 
 RUN apk --update --no-cache add nfs-utils="${NFS_UTILS_VERSION}"
-
-RUN mkdir -p /var/lib/nfs/rpc_pipefs                                                     && \
-    mkdir -p /var/lib/nfs/v4recovery                                                     && \
-    echo "rpc_pipefs  /var/lib/nfs/rpc_pipefs  rpc_pipefs  defaults  0  0" > /etc/fstab && \
-    echo "nfsd        /proc/fs/nfsd            nfsd        defaults  0  0" >> /etc/fstab
+RUN echo "nfsd        /proc/fs/nfsd            nfsd        defaults  0  0" > /etc/fstab
 
 EXPOSE 2049
 
