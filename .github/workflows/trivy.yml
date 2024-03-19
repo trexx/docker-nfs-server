@@ -3,6 +3,10 @@ name: Trivy
 on:
   schedule:
     - cron: '37 12 * * *'
+  workflow_run:
+    workflows: ["Docker"]
+    types:
+      - completed
 
 permissions:
   contents: read
