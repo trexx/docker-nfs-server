@@ -6,11 +6,8 @@ ENV NFS_UTILS_VERSION="2.6.4-r4"
 
 RUN apk --update --no-cache add nfs-utils="${NFS_UTILS_VERSION}"
 RUN rm /etc/idmapd.conf /etc/exports
-RUN echo "nfsd        /proc/fs/nfsd            nfsd        defaults  0  0" > /etc/fstab
 
 EXPOSE 2049
 
-COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
+COPY --chmod=500 ./entrypoint.sh /usr/local/bin/entrypoint.sh
 CMD ["/usr/local/bin/entrypoint.sh"]
