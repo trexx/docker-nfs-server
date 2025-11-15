@@ -53,9 +53,18 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Cleanup registry
+      - name: Cleanup registry (Tagged)
         uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
         with:
           package-name: ${{ github.event.repository.name }}
           package-type: container
           min-versions-to-keep: 2
+          delete-only-untagged-versions: False
+
+      - name: Cleanup registry (Untagged)
+        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: 2
+          delete-only-untagged-versions: True
