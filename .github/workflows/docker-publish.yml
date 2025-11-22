@@ -53,10 +53,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Cleanup registry
-        uses: actions/delete-package-versions@e5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+      - name: Registry pruning
+        uses: dataaxiom/ghcr-cleanup-action@v1.0.16
         with:
-          package-name: ${{ github.event.repository.name }}
-          package-type: container
-          min-versions-to-keep: 4
-          ignore-versions: "^latest$"
+          exclude-tags: latest
+          keep-n-tagged: 2
