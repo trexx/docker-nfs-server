@@ -8,3 +8,8 @@ jobs:
   scan:
     uses: 'trexx/actions/.github/workflows/trivy.yml@main'
     secrets: 'inherit'
+    permissions:
+      packages: 'read'
+      contents: 'read'
+      security-events: 'write'
+      actions: 'read'
