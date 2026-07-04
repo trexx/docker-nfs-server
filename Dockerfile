@@ -7,7 +7,5 @@ ENV NFS_UTILS_VERSION="2.6.4-r6"
 RUN apk --update --no-cache add nfs-utils="${NFS_UTILS_VERSION}"
 RUN rm /etc/idmapd.conf /etc/exports
 
-EXPOSE 2049
-
 COPY --chmod=500 ./entrypoint.sh /usr/local/bin/entrypoint.sh
 CMD ["/usr/local/bin/entrypoint.sh"]
