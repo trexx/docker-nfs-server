@@ -2,12 +2,73 @@ name: 'Build'
 
 on:
   push:
-    tags: [ '*.*.*' ]
+    branches: [ '**' ]
+  schedule:
+    # Weekly rebuild to pick up Alpine package fixes that don't change the base image
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: 'build-${{ github.ref }}'
 
 jobs:
   build:
-    uses: 'trexx/actions/.github/workflows/build.yml@main'
-    secrets: 'inherit'
+    runs-on: 'ubuntu-26.04'
     permissions:
-      contents: read
-      packages: write
+      contents: 'read'
+      packages: 'write'
+    env:
+      IMAGE: 'ghcr.io/${{ github.repository }}'
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' # v7.0.1
+
+      - name: 'Build image'
+        run: 'docker build --pull --no-cache -t nfs-server:test .'
+
+      - name: 'End-to-end test'
+        run: 'sudo ./test/e2e.sh nfs-server:test'
+
+      # Only publish from main, and only when the image content differs from :latest,
+      # so weekly rebuilds don't push a new digest when nothing changed
+      - name: 'Check for changes'
+        id: 'changes'
+        if: "github.ref == 'refs/heads/main'"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: |
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+          fingerprint() {
+            docker run --rm --entrypoint sh "$1" -c 'apk info -v | sort; sha256sum /usr/sbin/rpc.nfsd /usr/sbin/rpc.mountd /usr/sbin/exportfs /usr/local/bin/entrypoint.sh'
+            docker image inspect --format '{{json .Config}}' "$1"
+          }
+
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] \
+            && docker pull -q "${IMAGE}:latest" \
+            && [ "$(fingerprint nfs-server:test)" = "$(fingerprint "${IMAGE}:latest")" ]; then
+            echo "Image unchanged from ${IMAGE}:latest, skipping publish"
+            echo "publish=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "publish=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: 'Push image'
+        if: "steps.changes.outputs.publish == 'true'"
+        run: |
+          VERSION="$(sed -n 's/^FROM alpine:\([^@]*\)@.*/\1/p' Dockerfile | tail -n 1)"
+          for TAG in latest "${VERSION}" "${VERSION}-${{ github.run_number }}"; do
+            docker tag nfs-server:test "${IMAGE}:${TAG}"
+            docker push -q "${IMAGE}:${TAG}"
+          done
+
+      # https://github.com/dataaxiom/ghcr-cleanup-action
+      - name: 'Registry pruning'
+        if: "steps.changes.outputs.publish == 'true'"
+        uses: 'dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f' # v1.2.2
+        with:
+          exclude-tags: 'latest'
+          keep-n-tagged: 2
+          delete-untagged: true
+          delete-partial-images: true
