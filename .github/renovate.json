@@ -5,10 +5,23 @@
     "docker:enableMajor",
     "docker:pinDigests",
     "default:automergeDigest",
-    "default:automergeMinor"
+    "default:automergeMinor",
+    "helpers:pinGitHubActionDigests"
   ],
   "enabledManagers": [
     "dockerfile",
     "github-actions"
+  ],
+  "packageRules": [
+    {
+      "description": "Own actions and workflows follow main; don't update or pin them",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchPackageNames": [
+        "trexx/**"
+      ],
+      "enabled": false
+    }
   ]
 }
