@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    uses: 'trexx/actions/.github/workflows/build-test-publish.yml@claude/lucid-darwin-nuuu7t'
+    uses: 'trexx/actions/.github/workflows/build-test-publish.yml@main'
     secrets: 'inherit'
     permissions:
       contents: 'read'
