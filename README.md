@@ -3,7 +3,7 @@
 A small NFS server image based on Alpine.
 NFS 4.2 only; NFS v2 and v3 are disabled, so no rpcbind or extra ports are needed.
 
-I don't need a 1k line bash script to automate NFS for my needs. I use this myself to simply share a directory with Kodi.
+I use this myself to share a directory with Kodi.
 
 The image contains only the server binaries (`rpc.nfsd`, `rpc.mountd`, `exportfs`) and the libraries they need.
 
@@ -51,8 +51,6 @@ mount -t nfs4 -o vers=4.2 <host>:/ /mnt
 ```
 
 ### Kubernetes
-
-The image includes busybox `modprobe`, so it can load the kernel modules in an init container as well.
 
 ```yaml
 template:
