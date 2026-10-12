@@ -2,12 +2,21 @@ name: 'Build'
 
 on:
   push:
-    tags: [ '*.*.*' ]
+    branches: [ '**' ]
+  schedule:
+    # Weekly rebuild to pick up Alpine package fixes that don't change the base image
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: 'build-${{ github.ref }}'
 
 jobs:
   build:
-    uses: 'trexx/actions/.github/workflows/build.yml@main'
+    uses: 'trexx/actions/.github/workflows/build-test-publish.yml@main'
     secrets: 'inherit'
     permissions:
-      contents: read
-      packages: write
+      contents: 'read'
+      packages: 'write'
+    with:
+      test_command: 'sudo ./test/e2e.sh "${TEST_IMAGE}"'

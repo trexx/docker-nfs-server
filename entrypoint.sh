@@ -7,7 +7,7 @@ trap stop SIGTERM SIGINT
 stop() {
     /usr/sbin/rpc.nfsd 0
     killall /usr/sbin/rpc.mountd
-    umount /proc/fs/nfsd /var/lib/nfs/rpc_pipefs
+    umount /proc/fs/nfsd
 
     exit 0
 }
