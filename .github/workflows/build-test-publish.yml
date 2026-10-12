@@ -1,0 +1,104 @@
+name: 'Build, test and publish'
+
+# Builds a Docker image, optionally tests it, and on the publish branch pushes it
+# to the registry when its contents differ from :latest. Tags pushed:
+#   latest, <version>, <version>-<run number>
+# where <version> defaults to the tag of the final FROM image in the Dockerfile.
+
+on:
+  workflow_call:
+    inputs:
+      context:
+        description: 'Build context'
+        type: string
+        default: '.'
+      image:
+        description: 'Image to publish'
+        type: string
+        default: 'ghcr.io/${{ github.repository }}'
+      test_command:
+        description: 'Command to test the image, run from the repo root; the image is in $TEST_IMAGE'
+        type: string
+        default: ''
+      version_command:
+        description: 'Command that prints the version tag'
+        type: string
+        default: "sed -n 's/^FROM [^:@ ]*:\\([^@ ]*\\).*/\\1/p' Dockerfile | tail -n 1"
+      publish_branch:
+        description: 'Branch to publish from'
+        type: string
+        default: 'main'
+      prune_images:
+        description: 'Prune old images?'
+        type: boolean
+        default: true
+      keep_n_tagged:
+        description: 'Tagged images to keep when pruning'
+        type: number
+        default: 2
+
+jobs:
+  build:
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      contents: 'read'
+      packages: 'write'
+    env:
+      IMAGE: '${{ inputs.image }}'
+      TEST_IMAGE: 'local/image-under-test:${{ github.run_id }}'
+
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' # v7.0.1
+
+      # No cache, so scheduled rebuilds pick up updated packages
+      - name: 'Build image'
+        run: 'docker build --pull --no-cache -t "${TEST_IMAGE}" "${{ inputs.context }}"'
+
+      - name: 'Test image'
+        if: "inputs.test_command != ''"
+        run: '${{ inputs.test_command }}'
+
+      # Compare file contents and image config with :latest, so rebuilds that change
+      # nothing don't push a new digest
+      - name: 'Check for changes'
+        id: 'changes'
+        if: "github.ref == format('refs/heads/{0}', inputs.publish_branch)"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+        run: |
+          echo "${GITHUB_TOKEN}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+          fingerprint() {
+            docker run --rm --entrypoint sh "$1" -c 'find / -xdev -type f ! -path "/etc/hostname" ! -path "/etc/hosts" ! -path "/etc/resolv.conf" ! -path "/var/log/*" ! -path "/var/cache/*" ! -path "/tmp/*" -exec sha256sum {} + | sort -k 2'
+            docker image inspect --format '{{json .Config}}' "$1"
+          }
+
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] \
+            && docker pull -q "${IMAGE}:latest" \
+            && [ "$(fingerprint "${TEST_IMAGE}")" = "$(fingerprint "${IMAGE}:latest")" ]; then
+            echo "Image unchanged from ${IMAGE}:latest, skipping publish"
+            echo "publish=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "publish=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: 'Push image'
+        if: "steps.changes.outputs.publish == 'true'"
+        run: |
+          VERSION="$(${{ inputs.version_command }})"
+          TAGS="latest ${VERSION:+${VERSION} }${VERSION:-build}-${{ github.run_number }}"
+          for TAG in ${TAGS}; do
+            docker tag "${TEST_IMAGE}" "${IMAGE}:${TAG}"
+            docker push -q "${IMAGE}:${TAG}"
+          done
+
+      # https://github.com/dataaxiom/ghcr-cleanup-action
+      - name: 'Registry pruning'
+        if: "steps.changes.outputs.publish == 'true' && inputs.prune_images"
+        uses: 'dataaxiom/ghcr-cleanup-action@d52806a0dc70b430571a37da1fde39733ffd640f' # v1.2.2
+        with:
+          exclude-tags: 'latest'
+          keep-n-tagged: '${{ inputs.keep_n_tagged }}'
+          delete-untagged: true
+          delete-partial-images: true
