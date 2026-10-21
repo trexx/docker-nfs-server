@@ -7,20 +7,6 @@ I use this myself to share a directory with Kodi.
 
 The image contains only the server binaries (`rpc.nfsd`, `rpc.mountd`, `exportfs`) and the libraries they need.
 
-## Image
-
-```
-ghcr.io/trexx/docker-nfs-server
-```
-
-| Tag | Meaning |
-| --- | --- |
-| `latest` | Most recent build |
-| `3.24.2` | Most recent build on that Alpine release |
-| `3.24.2-<build>` | One specific build; never moves |
-
-Pin a digest (or a `-<build>` tag) in production. Old builds are pruned from the registry, keeping the two most recent.
-
 ## Requirements
 
 - The `nfsd` kernel module loaded on the host (`modprobe nfsd`). The NFS server runs in the host kernel; the container only starts and configures it.
