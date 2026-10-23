@@ -3,9 +3,9 @@
 A small NFS server image based on Alpine.
 NFS 4.2 only; NFS v2 and v3 are disabled, so no rpcbind or extra ports are needed.
 
-I use this myself to share a directory with Kodi.
-
 The image contains only the server binaries (`rpc.nfsd`, `rpc.mountd`, `exportfs`) and the libraries they need.
+
+I previously used this with Kodi on my Android TV device, however I've archived this as I don't use Kodi and have no use for the NFS container anymore.
 
 ## Requirements
 
